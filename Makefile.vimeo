@@ -1,0 +1,13 @@
+GIT_TAG ?= $(shell git describe --tags)
+OUT_DIR := .out
+
+.PHONY: build
+build:
+	rm -rf $(OUT_DIR)
+	mkdir -p $(OUT_DIR)
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o "$(OUT_DIR)/mkcert-$(GIT_TAG)-linux-amd64" -ldflags "-X main.Version=$(GIT_TAG)"
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=6 go build -o "$(OUT_DIR)/mkcert-$(GIT_TAG)-linux-arm" -ldflags "-X main.Version=$(GIT_TAG)"
+	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o "$(OUT_DIR)/mkcert-$(GIT_TAG)-linux-arm64" -ldflags "-X main.Version=$(GIT_TAG)"
+	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o "$(OUT_DIR)/mkcert-$(GIT_TAG)-darwin-amd64" -ldflags "-X main.Version=$(GIT_TAG)"
+	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o "$(OUT_DIR)/mkcert-$(GIT_TAG)-windows-amd64.exe" -ldflags "-X main.Version=$(GIT_TAG)"
+	(cd $(OUT_DIR) && sha256sum ./* > ./mkmkcert-$(GIT_TAG)-sha256sums)
